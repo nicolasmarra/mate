@@ -1,20 +1,41 @@
+import { API_KEY, language } from './api.js'
+
+async function getFilmsPopualires() {
+  const fetchReponse = await fetch(
+    `https://api.themoviedb.org/3/trending/all/day?api_key=${API_KEY}&language=${language}`
+  )
+
+  const film = await fetchReponse.json()
+
+  const resultats = film.results
+
+  resultats.forEach(film => renderFilm(film))
+}
+
+window.onload = async function () {
+  getFilmsPopualires()
+}
+
 function renderFilm(film) {
+  const isFavorited = false
+
   const section = document.createElement('section')
   document.body.appendChild(section)
 
   const image = document.createElement('img')
   image.classList.add('image_film')
   image.alt = 'image du film'
-  image.src = film['image']
+  image.src = `https://image.tmdb.org/t/p/w500${film['poster_path']}`
   section.appendChild(image)
 
   const details = document.createElement('div')
   details.classList.add('details')
   section.appendChild(details)
 
+  const annee = new Date(film['release_date']).getFullYear()
   const titre = document.createElement('span')
   titre.classList.add('titre')
-  titre.textContent = `${film['title']} (${film['year']})`
+  titre.textContent = `${film['title']} (${annee})`
   details.appendChild(titre)
 
   const notes = document.createElement('div')
@@ -31,7 +52,7 @@ function renderFilm(film) {
 
   const note = document.createElement('span')
   note.classList.add('note')
-  note.textContent = film['rating']
+  note.textContent = film['vote_average']
   classification.appendChild(note)
 
   const mesfavoris = document.createElement('div')
@@ -41,7 +62,7 @@ function renderFilm(film) {
   favoris.classList.add('favoris')
   favoris.alt = 'étoille'
 
-  if (film['isFavorited']) favoris.src = 'assets/favori-fill.svg'
+  if (isFavorited) favoris.src = 'assets/favori-fill.svg'
   else favoris.src = 'assets/favori.svg'
 
   mesfavoris.appendChild(favoris)
@@ -51,38 +72,6 @@ function renderFilm(film) {
   mesfavoris.appendChild(favoris_info)
 
   const paragraphe = document.createElement('p')
-  paragraphe.textContent = film['description']
+  paragraphe.textContent = film['overview']
   section.appendChild(paragraphe)
 }
-
-const movies = [
-  {
-    image:
-      'https://img.elo7.com.br/product/original/3FBA809/big-poster-filme-batman-2022-90x60-cm-lo002-poster-batman.jpg',
-    title: 'Batman',
-    rating: 9.2,
-    year: 2022,
-    description: 'Description du film…',
-    isFavorited: true
-  },
-  {
-    image:
-      'https://upload.wikimedia.org/wikipedia/pt/thumb/9/9b/Avengers_Endgame.jpg/250px-Avengers_Endgame.jpg',
-    title: 'Avengers',
-    rating: 9.2,
-    year: 2019,
-    description: 'Description du film…',
-    isFavorited: false
-  },
-  {
-    image:
-      'https://upload.wikimedia.org/wikipedia/en/1/17/Doctor_Strange_in_the_Multiverse_of_Madness_poster.jpg',
-    title: 'Doctor Strange',
-    rating: 9.2,
-    year: 2022,
-    description: 'Description du film…',
-    isFavorited: false
-  }
-]
-
-movies.forEach(movie => renderFilm(movie))
